@@ -1,0 +1,54 @@
+# =============================================================
+# .gitignore for z/OS HLASM Key-Value Store project
+# =============================================================
+
+# --- Build artifacts ---
+# Object decks (assembled output)
+*.obj
+*.OBJ
+
+# Load modules
+*.load
+*.LOAD
+
+# Listing files
+*.lst
+*.LST
+*.listing
+
+# --- z/OS transfer artifacts ---
+# Zowe CLI downloaded files
+.zowe/
+*.zoweprofile
+
+# IBM Z Open Editor workspace
+.z/
+.vscode/
+
+# --- OS-specific ---
+# Windows
+Thumbs.db
+Desktop.ini
+*.lnk
+
+# macOS
+.DS_Store
+._*
+
+# Linux
+*~
+*.swp
+*.swo
+
+# --- Editor temp files ---
+*.bak
+*.tmp
+*.orig
+\#*\#
+
+# --- Credentials (never commit) ---
+*.env
+.env.*
+credentials.json
+zowe.config.json
+zowe.config.user.json

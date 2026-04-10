@@ -1,0 +1,74 @@
+***********************************************************************
+*  VSAMIO - VSAM Linear Dataset I/O wrapper macros
+*
+*  Provides simplified macros for reading and writing hash table
+*  data to/from a VSAM Linear Data Set (LDS) using Data-In-Virtual
+*  (DIV) services. DIV maps the VSAM LDS directly into virtual
+*  storage, allowing the hash table to be accessed as an in-memory
+*  array while being transparently persisted.
+*
+*  Operations:
+*    VSAMOPEN  - Identify and map the VSAM LDS via DIV
+*    VSAMREAD  - Access (MAP) a window of the LDS
+*    VSAMWRT   - Save (SAVE) modified data back to LDS
+*    VSAMCLS   - Unmap and unidentify the DIV object
+*
+*  DIV macro reference:
+*    DIV IDENTIFY - Associate a ddname with a DIV object
+*    DIV MAP      - Map LDS pages into virtual storage
+*    DIV SAVE     - Write modified pages back to LDS
+*    DIV UNMAP    - Release virtual storage mapping
+*    DIV UNIDENTIFY - Release DIV object
+*
+***********************************************************************
+*
+*----------------------------------------------------------------------
+*  VSAMOPEN - Open VSAM LDS via DIV IDENTIFY + MAP
+*----------------------------------------------------------------------
+         MACRO
+&LABEL   VSAMOPEN &DIVID,&DDNAME,&MAPADDR,&MAPSIZE
+&LABEL   DS    0H
+*--- Identify the dataset to DIV ---
+         DIV   IDENTIFY,ID=&DIVID,DDNAME=&DDNAME,TYPE=DA
+         LTR   R15,R15             Check return code
+         BNZ   DIVFAIL             Branch if identify failed
+*--- Map the LDS into virtual storage ---
+         DIV   MAP,ID=&DIVID,AREA=&MAPADDR,SIZE=&MAPSIZE,            X
+               OFFSET=0,SPAN=ALL,MODE=UPDATE
+         LTR   R15,R15             Check return code
+         BNZ   DIVFAIL             Branch if map failed
+         MEND
+*
+*----------------------------------------------------------------------
+*  VSAMREAD - Read/refresh mapping (re-MAP to pick up changes)
+*----------------------------------------------------------------------
+         MACRO
+&LABEL   VSAMREAD &DIVID,&MAPADDR,&MAPSIZE
+&LABEL   DS    0H
+         DIV   MAP,ID=&DIVID,AREA=&MAPADDR,SIZE=&MAPSIZE,            X
+               OFFSET=0,SPAN=ALL,MODE=READ
+         LTR   R15,R15
+         BNZ   DIVFAIL
+         MEND
+*
+*----------------------------------------------------------------------
+*  VSAMWRT - Persist modified data (DIV SAVE)
+*----------------------------------------------------------------------
+         MACRO
+&LABEL   VSAMWRT &DIVID,&MAPADDR,&MAPSIZE
+&LABEL   DS    0H
+         DIV   SAVE,ID=&DIVID,AREA=&MAPADDR,SIZE=&MAPSIZE,           X
+               OFFSET=0,SPAN=ALL
+         LTR   R15,R15
+         BNZ   DIVFAIL
+         MEND
+*
+*----------------------------------------------------------------------
+*  VSAMCLS - Close VSAM LDS (UNMAP + UNIDENTIFY)
+*----------------------------------------------------------------------
+         MACRO
+&LABEL   VSAMCLS &DIVID,&MAPADDR,&MAPSIZE
+&LABEL   DS    0H
+         DIV   UNMAP,ID=&DIVID,AREA=&MAPADDR,SIZE=&MAPSIZE
+         DIV   UNIDENTIFY,ID=&DIVID
+         MEND

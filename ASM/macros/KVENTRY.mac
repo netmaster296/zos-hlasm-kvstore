@@ -1,0 +1,48 @@
+***********************************************************************
+*  KVENTRY - DSECT mapping for a Key-Value Store hash table entry
+*
+*  Each bucket in the hash table uses this fixed-length layout.
+*  Entries support chaining via a forward pointer for collision
+*  resolution (separate chaining mode) or are probed linearly
+*  (open addressing mode).
+*
+*  Entry layout (64 bytes total):
+*    +0   FLAGS   (1 byte)  - Status flags
+*    +1   KEYLEN  (1 byte)  - Actual key length
+*    +2   VALLEN  (2 bytes) - Actual value length
+*    +4   HASH    (4 bytes) - Cached full hash value
+*    +8   CHAIN   (4 bytes) - Chain pointer (offset, not address)
+*    +12  KEY     (20 bytes)- Key data (padded with x'00')
+*    +32  VALUE   (32 bytes)- Value data (padded with x'00')
+*
+*  FLAGS byte:
+*    x'80' - Entry is occupied (KVFL_OCC)
+*    x'40' - Entry has been deleted / is a tombstone (KVFL_DEL)
+*    x'20' - Entry is part of a chain (KVFL_CHN)
+*
+***********************************************************************
+         MACRO
+         KVENTRY
+KVENT    DSECT
+KVEFLAGS DS    XL1               Entry status flags
+KVEKEYLN DS    XL1               Key length (max 20)
+KVEVALLEN DS   HL2               Value length (max 32)
+KVEHASH  DS    FL4               Full 32-bit hash of key
+KVECHAIN DS    FL4               Chain ptr (bucket offset, 0=none)
+KVEKEY   DS    CL20              Key data (null-padded)
+KVEVALUE DS    CL32              Value data (null-padded)
+KVENTLEN EQU   *-KVENT           Entry length = 64 bytes
+*
+* Flag equates
+*
+KVFL_OCC EQU   X'80'             Occupied
+KVFL_DEL EQU   X'40'             Deleted (tombstone)
+KVFL_CHN EQU   X'20'             Chained entry
+*
+* Table geometry equates
+*
+KVTBLSZ  EQU   1024              Default number of buckets
+KVENTSZ  EQU   64                Bytes per entry
+KVTBLBYT EQU   KVTBLSZ*KVENTSZ  Total table size in bytes (64K)
+*
+         MEND

@@ -1,0 +1,53 @@
+*********************************************************************
+*  SAMPLE-INSERTS.TXT - Test data for KV Store functional tests
+*
+*  Format: operation,key,value
+*  These represent realistic mainframe use cases:
+*    - Account balances (financial transaction processing)
+*    - Configuration parameters (system settings cache)
+*    - Session tokens (CICS transaction state)
+*    - Audit trail entries (compliance logging)
+*
+*  Use with KVDRIVER or individual test JCL jobs.
+*********************************************************************
+*
+*--- Financial accounts ---
+INSERT,ACCT001,BALANCE=15000.00
+INSERT,ACCT002,BALANCE=27500.50
+INSERT,ACCT003,BALANCE=8200.75
+INSERT,ACCT004,BALANCE=142000.00
+INSERT,ACCT005,BALANCE=500.25
+*
+*--- System configuration cache ---
+INSERT,CFG-LOGLVL,DEBUG
+INSERT,CFG-MAXCON,256
+INSERT,CFG-TMOUT,30
+INSERT,CFG-REGION,US-EAST
+INSERT,CFG-BATCH,ENABLED
+*
+*--- Session state (CICS-style transaction tokens) ---
+INSERT,SES-TXN0001,USER=ADMIN;TS=20240115
+INSERT,SES-TXN0002,USER=OPER1;TS=20240115
+INSERT,SES-TXN0003,USER=BATCH;TS=20240115
+*
+*--- Audit entries ---
+INSERT,AUD-000001,LOGIN;ADMIN;20240115T080
+INSERT,AUD-000002,QUERY;OPER1;20240115T081
+INSERT,AUD-000003,UPDATE;ADMIN;20240115T082
+*
+*--- Update operations ---
+UPDATE,ACCT001,BALANCE=16500.00
+UPDATE,CFG-LOGLVL,INFO
+*
+*--- Lookup operations ---
+LOOKUP,ACCT001
+LOOKUP,CFG-MAXCON
+LOOKUP,SES-TXN0001
+LOOKUP,NOEXIST99
+*
+*--- Delete operations ---
+DELETE,SES-TXN0003
+DELETE,AUD-000001
+*
+*--- Final statistics ---
+STATS

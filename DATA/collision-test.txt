@@ -1,0 +1,40 @@
+*********************************************************************
+*  COLLISION-TEST.TXT - Keys designed to test hash collision handling
+*
+*  These key pairs are crafted to likely hash to the same bucket
+*  (modulo 1024), exercising the linear probing collision resolution.
+*
+*  After running these inserts, use STATS to verify the table
+*  reports the correct number of occupied entries.
+*********************************************************************
+*
+*--- Batch of keys that stress bucket distribution ---
+INSERT,A,VAL-A
+INSERT,B,VAL-B
+INSERT,C,VAL-C
+INSERT,AA,VAL-AA
+INSERT,BB,VAL-BB
+INSERT,CC,VAL-CC
+INSERT,AAA,VAL-AAA
+INSERT,BBB,VAL-BBB
+INSERT,CCC,VAL-CCC
+INSERT,KEY00001,COLLISION-TEST-01
+INSERT,KEY00002,COLLISION-TEST-02
+INSERT,KEY00003,COLLISION-TEST-03
+INSERT,KEY00004,COLLISION-TEST-04
+INSERT,KEY00005,COLLISION-TEST-05
+INSERT,KEY00006,COLLISION-TEST-06
+INSERT,KEY00007,COLLISION-TEST-07
+INSERT,KEY00008,COLLISION-TEST-08
+INSERT,KEY00009,COLLISION-TEST-09
+INSERT,KEY00010,COLLISION-TEST-10
+*
+*--- Verify all inserts via lookups ---
+LOOKUP,A
+LOOKUP,AA
+LOOKUP,AAA
+LOOKUP,KEY00001
+LOOKUP,KEY00010
+*
+*--- Statistics to show distribution ---
+STATS

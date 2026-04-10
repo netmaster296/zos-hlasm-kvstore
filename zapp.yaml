@@ -1,0 +1,76 @@
+# zapp.yaml - IBM Z Open Editor / Zowe CLI project configuration
+#
+# This file enables modern development workflow:
+#   - Edit HLASM/JCL locally in VS Code with IBM Z Open Editor
+#   - Push to z/OS via Zowe CLI
+#   - Build remotely using JCL or zAppBuild
+#
+# Reference: https://ibm.github.io/zopeneditor-about/
+
+name: zos-hlasm-kvstore
+description: z/OS HLASM Key-Value Store (Hash Table) Utility
+version: 1.0.0
+
+# Property groups define how local files map to z/OS datasets
+propertyGroups:
+  - name: asm-source
+    language: hlasm
+    compileCommands:
+      - name: build
+        command: submit JCL/compile.jcl
+    libraries:
+      - name: syslib
+        locations:
+          - "ASM/macros"
+        type: macro
+
+  - name: jcl-jobs
+    language: jcl
+    libraries: []
+
+  - name: rexx-execs
+    language: rexx
+    libraries: []
+
+# Zowe profiles for remote z/OS connectivity
+# Users should configure their own Zowe CLI profiles
+# and update these references accordingly.
+profiles:
+  zosmf:
+    # Example: zowe profiles create zosmf myprofile
+    #   --host mymainframe.example.com
+    #   --port 443
+    #   --user USERID
+    #   --password ****
+    #   --reject-unauthorized false
+    default: true
+
+# Dataset mapping for file transfer
+datasets:
+  - pattern: "ASM/*.asm"
+    dsname: "{userid}.KVSTORE.ASM"
+    type: pds
+    memberPattern: "{filename}"
+    recfm: FB
+    lrecl: 80
+
+  - pattern: "ASM/macros/*.mac"
+    dsname: "{userid}.KVSTORE.MACLIB"
+    type: pds
+    memberPattern: "{filename}"
+    recfm: FB
+    lrecl: 80
+
+  - pattern: "JCL/*.jcl"
+    dsname: "{userid}.KVSTORE.JCL"
+    type: pds
+    memberPattern: "{filename}"
+    recfm: FB
+    lrecl: 80
+
+  - pattern: "REXX/*.rexx"
+    dsname: "{userid}.KVSTORE.REXX"
+    type: pds
+    memberPattern: "{filename}"
+    recfm: FB
+    lrecl: 80
